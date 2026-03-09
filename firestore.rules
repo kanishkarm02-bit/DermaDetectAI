@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function isValidString(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+        request.resource.data[field].size() >= minLen &&
+        request.resource.data[field].size() <= maxLen;
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string &&
+        dateStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    function isValidTask(data) {
+      return hasRequiredFields(['title', 'completed', 'userId', 'createdAt']) &&
+        isValidString('title', 1, 100) &&
+        data.completed is bool &&
+        data.userId is string &&
+        isValidDateString(data.createdAt) &&
+        (!('dueDate' in data) || isValidDateString(data.dueDate));
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId}/tasks/{taskId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidTask(request.resource.data);
+      allow update: if isOwner(userId) && isValidTask(request.resource.data);
+      allow delete: if isOwner(userId);
+    }
+  }
+}

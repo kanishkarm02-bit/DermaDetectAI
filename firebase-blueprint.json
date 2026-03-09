@@ -1,0 +1,40 @@
+{
+  "entities": {
+    "Task": {
+      "title": "Task",
+      "description": "A task to be completed by the user.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the task."
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Whether the task is completed."
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The due date of the task."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who owns the task."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the task was created."
+        }
+      },
+      "required": ["title", "completed", "userId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "users/{userId}/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Tasks belonging to a user."
+    }
+  }
+}

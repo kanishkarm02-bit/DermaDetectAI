@@ -1,0 +1,5 @@
+{
+  "name": "DermaDetect AI",
+  "description": "AI-powered skin condition analyzer prototype using Gemini Vision.",
+  "requestFramePermissions": ["camera"]
+}
